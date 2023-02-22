@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ARL_TomLooman",
+	"Description": "ActionRogueLike",
+	"Category": "Other",
+	"CreatedBy": "mss10001",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ARL_TomLooman",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

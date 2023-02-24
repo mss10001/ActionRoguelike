@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "ARLExampleChar.h"
+#include "ARLMagicProjectile.h"
+
 #include "SCharacter.generated.h"
 
-class USpringArmComponent;
-class UCameraComponent;
 
 UCLASS()
-class ACTIONROGUELIKE_API ASCharacter : public ACharacter
+class ACTIONROGUELIKE_API ASCharacter : public AARLExampleChar
 {
 	GENERATED_BODY()
 
@@ -18,20 +18,18 @@ public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
+	
+
 protected:
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USpringArmComponent> SpringArmComp;
-
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UCameraComponent> CameraComp;
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	TSubclassOf<AARLMagicProjectile> ProjectileClass;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	void PrimaryAttack();
 
-	void MoveForward(float Value);
-
-	void MoveRight(float Value);
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

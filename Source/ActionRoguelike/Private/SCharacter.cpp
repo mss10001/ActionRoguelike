@@ -4,6 +4,9 @@
 #include "SCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "DrawDebugHelpers.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "ARLMagicProjectile.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -11,12 +14,6 @@ ASCharacter::ASCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->SetupAttachment(RootComponent);
-
-	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
-	CameraComp->SetupAttachment(SpringArmComp);
 }
 
 // Called when the game starts or when spawned
@@ -24,16 +21,6 @@ void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-void ASCharacter::MoveForward(float Value)
-{
-	AddMovementInput(GetActorForwardVector(), Value);
-}
-
-void ASCharacter::MoveRight(float Value)
-{
-	AddMovementInput(GetActorRightVector(), Value);
 }
 
 // Called every frame
@@ -48,8 +35,22 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 }
 
+void ASCharacter::PrimaryAttack()
+{
+	if (ProjectileClass)
+	{
+		FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+		SpawnParams.Instigator = this;
+		SpawnParams.Owner = this;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		const FVector ProjectileLocation = GetActorLocation() + (GetActorForwardVector() * 50.f);
+		const FRotator ProjectileDirection = GetControlRotation();
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, HandLocation, ProjectileDirection, SpawnParams);
+	}
+	
+}

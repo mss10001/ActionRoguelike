@@ -12,7 +12,7 @@ AARLExplosive::AARLExplosive()
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	MeshComp->SetSimulatePhysics(true);
-	MeshComp->SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
+	MeshComp->SetCollisionProfileName(/* UCollisionProfile::PhysicsActor_ProfileName */ "PhysicsActor");
 	SetRootComponent(MeshComp);
 
 	RadialForceComp = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
@@ -22,9 +22,9 @@ AARLExplosive::AARLExplosive()
 	RadialForceComp->SetAutoActivate(false);
 
 	// Initialize some force values
+	RadialForceComp->Radius = 400.f;
+	RadialForceComp->ImpulseStrength = 1200.f;  // Alternative: 200000.0 if bImpulseVelChange = false
 
-	RadialForceComp->Radius = 750.f;
-	RadialForceComp->ImpulseStrength = 2500.f;  // Alternative: 200000.0 if bImpulseVelChange = false
 	// Optional, ignores 'Mass' of other objects (if false, the impulse strength will be much higher to push most objects depending on Mass)
 	RadialForceComp->bImpulseVelChange = true;
 	
@@ -61,17 +61,21 @@ void AARLExplosive::OnExplosiveHit(UPrimitiveComponent* HitComponent, AActor* Ot
 
 
 
-void AARLExplosive::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AARLExplosive::CleanUpPtr()
 {
 	MeshComp = nullptr;
 	RadialForceComp = nullptr;
+}
+
+void AARLExplosive::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CleanUpPtr();
 	Super::EndPlay(EndPlayReason);
 }
 
 void AARLExplosive::Destroyed()
 {
-	MeshComp = nullptr;
-	RadialForceComp = nullptr;
+	CleanUpPtr();
 	Super::Destroyed();
 }
 

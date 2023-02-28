@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ARLMagicProjectile.h"
+#include "ARLProjectile.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
-AARLMagicProjectile::AARLMagicProjectile()
+AARLProjectile::AARLProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -33,32 +33,33 @@ AARLMagicProjectile::AARLMagicProjectile()
 }
 
 // Called when the game starts or when spawned
-void AARLMagicProjectile::BeginPlay()
+void AARLProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-void AARLMagicProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AARLProjectile::CleanUpPtr()
 {
 	SphereComp = nullptr;
 	MovementComp = nullptr;
 	EffectComp = nullptr;
+}
 
+void AARLProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CleanUpPtr();
 	Super::EndPlay(EndPlayReason);
 }
 
-void AARLMagicProjectile::Destroyed()
+void AARLProjectile::Destroyed()
 {
-	SphereComp = nullptr;
-	MovementComp = nullptr;
-	EffectComp = nullptr;
-
+	CleanUpPtr();
 	Super::Destroyed();
 }
 
 // Called every frame
-void AARLMagicProjectile::Tick(float DeltaTime)
+void AARLProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 

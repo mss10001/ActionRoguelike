@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ARLExampleChar.h"
-#include "ARLMagicProjectile.h"
 
 #include "SCharacter.generated.h"
 
@@ -22,14 +21,9 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Projectile")
-	TSubclassOf<AARLMagicProjectile> ProjectileClass;
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	void PrimaryAttack();
-
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ARLMagicProjectile.generated.h"
+#include "ARLProjectile.generated.h"
 
 class USphereComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
-class ARL_TOMLOOMAN_API AARLMagicProjectile : public AActor
+class ARL_TOMLOOMAN_API AARLProjectile : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AARLMagicProjectile();
+	AARLProjectile();
 
 protected:
 
@@ -30,6 +30,8 @@ protected:
 	TObjectPtr<UParticleSystemComponent> EffectComp;
 	
 	virtual void BeginPlay() override;
+
+	virtual void CleanUpPtr();
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:

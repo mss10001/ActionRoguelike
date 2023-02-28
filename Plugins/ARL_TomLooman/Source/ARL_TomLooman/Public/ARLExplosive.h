@@ -19,14 +19,15 @@ public:
 
 protected:
 
+	// For explosion simulation
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<URadialForceComponent> RadialForceComp;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 
-	
-	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void CleanUpPtr();
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
 	// Must be marked with UFUNCTION in order to 'bind' the event
@@ -36,9 +37,9 @@ protected:
 public:
 
 
-	void PostInitializeComponents() override;
+	virtual void PostInitializeComponents() override;
 
 public:
-	void Destroyed() override;
+	virtual void Destroyed() override;
 
 };

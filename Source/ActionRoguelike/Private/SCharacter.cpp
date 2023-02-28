@@ -6,7 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "ARLMagicProjectile.h"
+
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -35,22 +35,5 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
 }
 
-void ASCharacter::PrimaryAttack()
-{
-	if (ProjectileClass)
-	{
-		FActorSpawnParameters SpawnParams = FActorSpawnParameters();
-		SpawnParams.Instigator = this;
-		SpawnParams.Owner = this;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-		const FVector ProjectileLocation = GetActorLocation() + (GetActorForwardVector() * 50.f);
-		const FRotator ProjectileDirection = GetControlRotation();
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, HandLocation, ProjectileDirection, SpawnParams);
-	}
-	
-}

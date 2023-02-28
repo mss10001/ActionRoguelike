@@ -4,8 +4,10 @@
 #include "ARLExampleChar.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "ARLProjectile.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "ARLInteractionComponent.h"
 
 // Sets default values
 AARLExampleChar::AARLExampleChar()
@@ -20,6 +22,8 @@ AARLExampleChar::AARLExampleChar()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	InteractionComp = CreateDefaultSubobject<UARLInteractionComponent>("InteractionComp");
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false; // false means don't turn the pawn with the controller
@@ -31,7 +35,6 @@ void AARLExampleChar::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
 
 
 void AARLExampleChar::DrawDebugDirections()
@@ -78,6 +81,9 @@ void AARLExampleChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AARLExampleChar::PrimaryAttack);
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AARLExampleChar::PrimaryInteract);
 }
 
 void AARLExampleChar::MoveForward(float Value)
@@ -98,4 +104,28 @@ void AARLExampleChar::MoveRight(float Value)
 	FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
 
 	AddMovementInput(RightVector, Value);
+}
+
+void AARLExampleChar::PrimaryAttack()
+{
+	if (ProjectileClass)
+	{
+		FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+		SpawnParams.Instigator = this;
+		SpawnParams.Owner = this;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		const FVector ProjectileLocation = GetActorLocation() + (GetActorForwardVector() * 50.f);
+		const FRotator ProjectileDirection = GetControlRotation();
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, HandLocation, ProjectileDirection, SpawnParams);
+	}
+}
+
+void AARLExampleChar::PrimaryInteract()
+{
+	if (InteractionComp)
+	{
+		InteractionComp->PrimaryInteract();
+	}
 }

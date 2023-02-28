@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
 #include "ARLExampleChar.generated.h"
 
 
 class USpringArmComponent;
 class UCameraComponent;
+class AARLProjectile;
+class UARLInteractionComponent;
 
 UCLASS()
 class ARL_TOMLOOMAN_API AARLExampleChar : public ACharacter
@@ -26,6 +29,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> CameraComp;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UARLInteractionComponent> InteractionComp;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	TSubclassOf<AARLProjectile> ProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "DebugHelpers")
 	bool DebugActive = false;
@@ -33,6 +42,10 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void PrimaryAttack();
+
+	void PrimaryInteract();
 
 	void MoveForward(float Value);
 

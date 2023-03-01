@@ -110,16 +110,27 @@ void AARLExampleChar::PrimaryAttack()
 {
 	if (ProjectileClass)
 	{
-		FActorSpawnParameters SpawnParams = FActorSpawnParameters();
-		SpawnParams.Instigator = this;
-		SpawnParams.Owner = this;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		if (AttackMontage)
+		{
+			PlayAnimMontage(AttackMontage);
+		}
 
-		const FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-		const FVector ProjectileLocation = GetActorLocation() + (GetActorForwardVector() * 50.f);
-		const FRotator ProjectileDirection = GetControlRotation();
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, HandLocation, ProjectileDirection, SpawnParams);
+		GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AARLExampleChar::PrimaryAttack_TimeElapsed, 0.2f, false);		
 	}
+}
+
+void AARLExampleChar::PrimaryAttack_TimeElapsed()
+{
+	FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+	SpawnParams.Instigator = this;
+	SpawnParams.Owner = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	const FVector FireLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	// const FVector FireLocation = GetActorLocation() + (GetActorForwardVector() * 50.f); // Fire from center of actor (character)
+
+	const FRotator ProjectileDirection = GetControlRotation();
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, FireLocation, ProjectileDirection, SpawnParams);
 }
 
 void AARLExampleChar::PrimaryInteract()

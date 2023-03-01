@@ -32,6 +32,6 @@ public:
 	// Check if Object implemented the Interface: if (Owner->Implements<UARLGamePlayInterface>()){} ATTENTION: Here the UARLGamePlayInterface and not the IARLGamePlayInterface will be used
 	// 
 	// take also a look into "UARLInteractionComponent::PrimaryInteract()" and "AARLItemChest::Interact_Implementation(APawn* InstigatorPawn)"
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Interact(APawn* InstigatorPawn);
 };

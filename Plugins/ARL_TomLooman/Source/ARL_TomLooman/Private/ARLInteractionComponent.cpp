@@ -49,14 +49,15 @@ void UARLInteractionComponent::PrimaryInteract()
 
 	TArray<FHitResult> Hits;
 	float Radius = 30.f;
-	FCollisionShape CollisionSphere;
-	CollisionSphere.SetSphere(Radius);
-	bool bBlockiongHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, CollisionSphere); 
+	FCollisionShape CollisionShape;
+	CollisionShape.SetSphere(Radius);
+	bool bBlockiongHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, CollisionShape); 
 
 	FColor LineColor = bBlockiongHit ? FColor::Green : FColor::Red;
 
 	for (FHitResult Hit : Hits)
 	{
+		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 16, LineColor, false, 2.f, 0, 1.f);
 		TObjectPtr<AActor> HitActor = Hit.GetActor();
 		if (HitActor)
 		{
@@ -68,7 +69,6 @@ void UARLInteractionComponent::PrimaryInteract()
 				break;
 			}
 		}
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 16, LineColor, false, 2.f, 0, 1.f);
 	}
 		
 	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.f, 0, 2.f);

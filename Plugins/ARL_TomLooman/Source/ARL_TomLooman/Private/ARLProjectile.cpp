@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AARLProjectile::AARLProjectile()
@@ -30,13 +31,38 @@ AARLProjectile::AARLProjectile()
 	MovementComp->InitialSpeed = 1000.f;
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->bInitialVelocityInLocalSpace = true;
+	MovementComp->ProjectileGravityScale = 0.f;
+
+	bIgnoreInstigatorWhenMoving = true;
+	
 }
 
-// Called when the game starts or when spawned
 void AARLProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	TObjectPtr<AActor> MyInstigator = Cast<AActor>(GetInstigator());
+	
+	if (ensure(IsValid(MyInstigator)))
+	{
+		SphereComp->IgnoreActorWhenMoving(MyInstigator, bIgnoreInstigatorWhenMoving);
+	}
+}
+
+void AARLProjectile::OnSphereCompHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	UE_LOG(LogTemp, Error, TEXT("OtherActor %s"), *GetNameSafe(OtherActor));
+	Explode();
+}
+
+void AARLProjectile::Explode_Implementation()
+{
+	if (ensure(IsValid(this) && IsValid(ImpactVFX)))
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
+
+		Destroy();
+	}
 }
 
 void AARLProjectile::CleanUpPtr()
@@ -52,18 +78,16 @@ void AARLProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+
 void AARLProjectile::Destroyed()
 {
 	CleanUpPtr();
 	Super::Destroyed();
 }
 
-// Called every frame
-void AARLProjectile::Tick(float DeltaTime)
+void AARLProjectile::PostInitializeComponents()
 {
-	Super::Tick(DeltaTime);
-
+	Super::PostInitializeComponents();
+	
+	SphereComp->OnComponentHit.AddDynamic(this, &AARLProjectile::OnSphereCompHit);
 }
-
-
-

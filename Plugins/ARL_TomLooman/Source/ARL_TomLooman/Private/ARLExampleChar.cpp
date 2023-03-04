@@ -27,6 +27,8 @@ AARLExampleChar::AARLExampleChar()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false; // false means don't turn the pawn with the controller
+
+	AttackAnimDelay = 0.2f;
 }
 
 // Called when the game starts or when spawned
@@ -83,7 +85,10 @@ void AARLExampleChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AARLExampleChar::PrimaryAttack);
+	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &AARLExampleChar::SecondaryAttack);
+	PlayerInputComponent->BindAction("Action01", IE_Pressed, this, &AARLExampleChar::Action01);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AARLExampleChar::PrimaryInteract);
+
 }
 
 void AARLExampleChar::MoveForward(float Value)
@@ -106,31 +111,109 @@ void AARLExampleChar::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
-void AARLExampleChar::PrimaryAttack()
+void AARLExampleChar::SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawnClass)
 {
-	if (ProjectileClass)
+	if (ensureAlways(IsValid(ProjectileToSpawnClass)))
 	{
-		if (AttackMontage)
+		FActorSpawnParameters SpawnParams = FActorSpawnParameters();
+		SpawnParams.Instigator = this;
+		SpawnParams.Owner = this;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		const FVector FireLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		// const FVector FireLocation = GetActorLocation() + (GetActorForwardVector() * 50.f); // Fire from center of actor (character)
+
+		FHitResult Hit;
+		FVector TraceStart = CameraComp->GetComponentLocation(); /* GetPawnViewLocation() + (GetControlRotation().Vector() * 50); */
+		FVector TraceEnd = TraceStart + (GetControlRotation().Vector() * 5000);
+		
+		FCollisionShape Shape;
+		Shape.SetSphere(20.f);
+		
+		FCollisionObjectQueryParams ObjectQueryParams;
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+		FRotator ProjectileRotation;
+		
+		if (GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjectQueryParams, Shape, Params))
 		{
-			PlayAnimMontage(AttackMontage);
+			//-------------------------->>>  // same as FindLookAtRotation
+			ProjectileRotation = FRotationMatrix::MakeFromX((Hit.ImpactPoint - FireLocation)).Rotator();
+		}
+		else
+		{
+			//-------------------------->>>  // same as FindLookAtRotation
+			ProjectileRotation = FRotationMatrix::MakeFromX((TraceEnd - FireLocation)).Rotator();
 		}
 
-		GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AARLExampleChar::PrimaryAttack_TimeElapsed, 0.2f, false);		
+		FTransform SpawnTM = FTransform(ProjectileRotation, FireLocation);
+		GetWorld()->SpawnActor<AActor>(ProjectileToSpawnClass, SpawnTM, SpawnParams);
+
+		//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
 	}
 }
 
-void AARLExampleChar::PrimaryAttack_TimeElapsed()
+void AARLExampleChar::PrimaryAttack()
 {
-	FActorSpawnParameters SpawnParams = FActorSpawnParameters();
-	SpawnParams.Instigator = this;
-	SpawnParams.Owner = this;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	if (ensure(AttackMontage))
+	{
+		PlayAnimMontage(AttackMontage);
+	}
 
-	const FVector FireLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	// const FVector FireLocation = GetActorLocation() + (GetActorForwardVector() * 50.f); // Fire from center of actor (character)
+	// Fire 0.2 seconds later when the hand of the char in the montage reached fire position. Better way would be through AnimNotifier
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AARLExampleChar::PrimaryAttack_TimeElapsed, AttackAnimDelay, false);
+}
 
-	const FRotator ProjectileDirection = GetControlRotation();
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, FireLocation, ProjectileDirection, SpawnParams);
+void AARLExampleChar::PrimaryAttack_TimeElapsed() // ############### Video 8.40 min
+{
+	if (ensure(IsValid(PrimaryProjectileClass)))
+	{
+		SpawnProjectile(PrimaryProjectileClass);
+	}
+	//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+}
+
+void AARLExampleChar::SecondaryAttack()
+{
+	if (ensure(AttackMontage))
+	{
+		PlayAnimMontage(AttackMontage);
+	}
+
+	// Fire 0.2 seconds later when the hand of the char in the montage reached fire position. Better way would be through AnimNotifier
+	GetWorldTimerManager().SetTimer(TimerHandle_Secondary, this, &AARLExampleChar::SecondaryAttack_TimeElapsed, AttackAnimDelay, false);
+}
+
+void AARLExampleChar::SecondaryAttack_TimeElapsed()
+{
+	if (ensure(IsValid(SecondaryProjectileClass)))
+	{
+		SpawnProjectile(SecondaryProjectileClass);
+	}
+}
+
+void AARLExampleChar::Action01()
+{
+	if (ensure(AttackMontage))
+	{
+		PlayAnimMontage(AttackMontage);
+	}
+
+	// Fire 0.2 seconds later when the hand of the char in the montage reached fire position. Better way would be through AnimNotifier
+	GetWorldTimerManager().SetTimer(TimerHandle_Secondary, this, &AARLExampleChar::Action01_TimeElapsed, AttackAnimDelay, false);
+}
+
+void AARLExampleChar::Action01_TimeElapsed()
+{
+	if (ensure(IsValid(Action01ProjectileClass)))
+	{
+		SpawnProjectile(Action01ProjectileClass);
+	}
 }
 
 void AARLExampleChar::PrimaryInteract()
@@ -140,3 +223,5 @@ void AARLExampleChar::PrimaryInteract()
 		InteractionComp->PrimaryInteract();
 	}
 }
+
+

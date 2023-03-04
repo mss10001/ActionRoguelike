@@ -37,19 +37,42 @@ protected:
 	bool DebugActive = false;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AARLProjectile> ProjectileClass;
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
 	TObjectPtr<UAnimMontage> AttackMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float AttackAnimDelay;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AARLProjectile> PrimaryProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AARLProjectile> SecondaryProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AARLProjectile> Action01ProjectileClass;
+
+	
+
 	FTimerHandle TimerHandle_PrimaryAttack;
+	FTimerHandle TimerHandle_Secondary;
+	FTimerHandle TimerHandle_Action01;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void PrimaryAttack();
 
-	void PrimaryAttack_TimeElapsed();
+	void PrimaryAttack_TimeElapsed();	
+
+	void SecondaryAttack();
+
+	void SecondaryAttack_TimeElapsed();
+
+	void Action01();
+
+	void Action01_TimeElapsed();
+
+	void SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawn);
 
 	void PrimaryInteract();
 

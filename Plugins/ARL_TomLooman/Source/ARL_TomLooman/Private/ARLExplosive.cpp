@@ -47,8 +47,8 @@ void AARLExplosive::OnExplosiveHit(UPrimitiveComponent* HitComponent, AActor* Ot
 	UE_LOG(LogTemp, Log, TEXT("OnExplosiveHit triggered"));
 
 	// %s string
-	// %f float
-	// %d double
+	// %f float/double
+	// %i integer
 
 	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s, at game time: %f"), *GetNameSafe(OtherActor), GetWorld()->TimeSeconds);
 

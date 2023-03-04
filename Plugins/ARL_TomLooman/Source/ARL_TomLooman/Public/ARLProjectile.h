@@ -20,23 +20,38 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TObjectPtr<UParticleSystem> ImpactVFX;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<USphereComponent> SphereComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UProjectileMovementComponent> MovementComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UParticleSystemComponent> EffectComp;
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bIgnoreInstigatorWhenMoving;
+
+	UFUNCTION()
+	virtual void OnSphereCompHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Explode();
+
 	virtual void BeginPlay() override;
 
 	virtual void CleanUpPtr();
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+
+
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	
 	virtual void Destroyed() override;
+
+	virtual void PostInitializeComponents() override;
 
 };

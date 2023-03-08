@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AARLProjectile;
 class UARLInteractionComponent;
+class UARLAttributesComponent;
 
 UCLASS()
 class ARL_TOMLOOMAN_API AARLExampleChar : public ACharacter
@@ -30,8 +31,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> CameraComp;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UARLInteractionComponent> InteractionComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UARLAttributesComponent> AttributeComp;
 
 	UPROPERTY(EditAnywhere, Category = "DebugHelpers")
 	bool DebugActive = false;
@@ -43,15 +47,14 @@ protected:
 	float AttackAnimDelay;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AARLProjectile> PrimaryProjectileClass;
+	TSubclassOf<AARLProjectile> MagicProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AARLProjectile> SecondaryProjectileClass;
+	TSubclassOf<AARLProjectile> BlackHoleProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AARLProjectile> Action01ProjectileClass;
+	TSubclassOf<AARLProjectile> DashProjectileClass;
 
-	
 
 	FTimerHandle TimerHandle_PrimaryAttack;
 	FTimerHandle TimerHandle_Secondary;
@@ -72,7 +75,7 @@ protected:
 
 	void Action01_TimeElapsed();
 
-	void SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawn);
+	void SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawn, bool bIncludePhysicsBodyCheck = true);
 
 	void PrimaryInteract();
 

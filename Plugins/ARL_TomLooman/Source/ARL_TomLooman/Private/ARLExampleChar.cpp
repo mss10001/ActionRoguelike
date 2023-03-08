@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ARLInteractionComponent.h"
+#include "ARLAttributesComponent.h"
 
 // Sets default values
 AARLExampleChar::AARLExampleChar()
@@ -23,6 +24,8 @@ AARLExampleChar::AARLExampleChar()
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	InteractionComp = CreateDefaultSubobject<UARLInteractionComponent>("InteractionComp");
+
+	AttributeComp = CreateDefaultSubobject<UARLAttributesComponent>("AttributeComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -111,7 +114,7 @@ void AARLExampleChar::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
-void AARLExampleChar::SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawnClass)
+void AARLExampleChar::SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawnClass, bool bIncludePhysicsBodyCheck)
 {
 	if (ensureAlways(IsValid(ProjectileToSpawnClass)))
 	{
@@ -134,7 +137,11 @@ void AARLExampleChar::SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSp
 		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
 		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 		ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+
+		if (bIncludePhysicsBodyCheck)
+		{
+			ObjectQueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+		}
 
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(this);
@@ -171,9 +178,9 @@ void AARLExampleChar::PrimaryAttack()
 
 void AARLExampleChar::PrimaryAttack_TimeElapsed() // ############### Video 8.40 min
 {
-	if (ensure(IsValid(PrimaryProjectileClass)))
+	if (ensure(IsValid(MagicProjectileClass)))
 	{
-		SpawnProjectile(PrimaryProjectileClass);
+		SpawnProjectile(MagicProjectileClass);
 	}
 	//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
 }
@@ -191,9 +198,9 @@ void AARLExampleChar::SecondaryAttack()
 
 void AARLExampleChar::SecondaryAttack_TimeElapsed()
 {
-	if (ensure(IsValid(SecondaryProjectileClass)))
+	if (ensure(IsValid(BlackHoleProjectileClass)))
 	{
-		SpawnProjectile(SecondaryProjectileClass);
+		SpawnProjectile(BlackHoleProjectileClass, false);
 	}
 }
 
@@ -210,9 +217,9 @@ void AARLExampleChar::Action01()
 
 void AARLExampleChar::Action01_TimeElapsed()
 {
-	if (ensure(IsValid(Action01ProjectileClass)))
+	if (ensure(IsValid(DashProjectileClass)))
 	{
-		SpawnProjectile(Action01ProjectileClass);
+		SpawnProjectile(DashProjectileClass);
 	}
 }
 

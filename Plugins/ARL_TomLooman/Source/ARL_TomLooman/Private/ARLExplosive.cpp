@@ -50,8 +50,8 @@ void AARLExplosive::OnExplosiveHit(UPrimitiveComponent* HitComponent, AActor* Ot
 	// %f float/double
 	// %i integer
 
-	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s, at game time: %f"), *GetNameSafe(OtherActor), GetWorld()->TimeSeconds);
-
+	UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s, OtherComp: %s at game time: %f"), *GetNameSafe(OtherActor), *GetNameSafe(OtherComp), GetWorld()->TimeSeconds);
+	UE_LOG(LogTemp, Warning, TEXT("Hit at location: %s"), *Hit.ImpactPoint.ToString());
 	// Detailed info on logging in ue4
 	// https://nerivec.github.io/old-ue4-wiki/pages/logs-printing-messages-to-yourself-during-runtime.html
 

@@ -20,11 +20,14 @@ public:
 protected:
 
 	// For explosion simulation
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<URadialForceComponent> RadialForceComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> MeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Explosion")
+	bool bAllreadyExploded;
 
 	virtual void CleanUpPtr();
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -34,12 +37,12 @@ protected:
 	UFUNCTION()
 	void OnExplosiveHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit );
 
-public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnExplosiveMeshDamageHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+public:
 
 	virtual void PostInitializeComponents() override;
-
-public:
 	virtual void Destroyed() override;
 
 };

@@ -43,7 +43,7 @@ void AARLProjectile::BeginPlay()
 	
 	TObjectPtr<AActor> MyInstigator = Cast<AActor>(GetInstigator());
 	
-	if (ensure(IsValid(MyInstigator)))
+	if (IsValid(MyInstigator))
 	{
 		SphereComp->IgnoreActorWhenMoving(MyInstigator, bIgnoreInstigatorWhenMoving);
 	}

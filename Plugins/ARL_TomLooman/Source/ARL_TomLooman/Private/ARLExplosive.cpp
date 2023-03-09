@@ -30,6 +30,8 @@ AARLExplosive::AARLExplosive()
 	
 	// Optional, default constructor of component already adds 4 object types to affect, excluding WorldDynamic
 	RadialForceComp->AddCollisionChannelToAffect(ECC_WorldDynamic);
+
+	bAllreadyExploded = false;
 }
 
 void AARLExplosive::PostInitializeComponents()
@@ -42,8 +44,27 @@ void AARLExplosive::PostInitializeComponents()
 
 void AARLExplosive::OnExplosiveHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	RadialForceComp->FireImpulse();
+	// *** Begin own implementation
+	if (bAllreadyExploded)
+	{
+		return;
+	}
+	bAllreadyExploded = true;
+	if (IsValid(HitComponent) && IsValid(OtherActor) && IsValid(OtherComp))
+	{
+		OnExplosiveMeshDamageHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
+	} 
+	FRotator RRot;
+	float RotMultiplier = 20.f;
+	RRot.Yaw = FMath::FRand() * RotMultiplier;
+	RRot.Pitch = FMath::FRand() * RotMultiplier;
+	RRot.Roll = FMath::FRand() * RotMultiplier;
 
+	SetActorRotation(RRot);
+	//MeshComp->AddImpulse(FMath::VRand() * 50, NAME_None, true);
+	// *** End own implementation
+
+	RadialForceComp->FireImpulse();
 	UE_LOG(LogTemp, Log, TEXT("OnExplosiveHit triggered"));
 
 	// %s string

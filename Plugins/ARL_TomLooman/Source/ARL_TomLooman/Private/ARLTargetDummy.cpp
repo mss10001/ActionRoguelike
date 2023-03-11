@@ -11,6 +11,7 @@ AARLTargetDummy::AARLTargetDummy()
 	SetRootComponent(MeshComp);
 
 	AttributeComp = CreateDefaultSubobject<UARLAttributesComponent>("AttributeComp");
+	TimeToHitParamName = "TimeToHit";
 }
 
 void AARLTargetDummy::PostInitializeComponents()
@@ -24,7 +25,7 @@ void AARLTargetDummy::OnHealthChanged(AActor* InstigatorActor, UARLAttributesCom
 {
 	if (Delta < 0.f)
 	{
-		MeshComp->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
+		MeshComp->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 	}
 }
 

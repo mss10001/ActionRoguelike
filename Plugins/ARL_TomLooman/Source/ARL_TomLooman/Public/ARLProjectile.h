@@ -8,6 +8,10 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class UParticleSystemComponent;
+class UAudioComponent;
+class USoundCue;
+class UCameraShakeBase;
 
 UCLASS()
 class ARL_TOMLOOMAN_API AARLProjectile : public AActor
@@ -23,14 +27,29 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TObjectPtr<UParticleSystem> ImpactVFX;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TObjectPtr<USoundCue> ImpactSoundCue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	TSubclassOf<UCameraShakeBase> ImpactCameraShake;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	float ImpactShakeInnerRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects|Shake")
+	float ImpactShakeOuterRadius;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USphereComponent> SphereComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UProjectileMovementComponent> MovementComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UParticleSystemComponent> EffectComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UAudioComponent> AudioComp;
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bIgnoreInstigatorWhenMoving;
@@ -51,7 +70,5 @@ protected:
 public:
 	
 	virtual void Destroyed() override;
-
 	virtual void PostInitializeComponents() override;
-
 };

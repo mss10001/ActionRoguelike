@@ -5,6 +5,14 @@
 #include "Components/SphereComponent.h"
 #include "ARLAttributesComponent.h"
 
+AARLMagicProjectile::AARLMagicProjectile()
+{
+	SphereComp->SetSphereRadius(20.f);
+	InitialLifeSpan = 5.f;
+	DamageAmount = 20.f;
+
+}
+
 void AARLMagicProjectile::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
@@ -19,7 +27,7 @@ void AARLMagicProjectile::OnSphereCompBeginOverlap(UPrimitiveComponent* Overlapp
 		TObjectPtr<UARLAttributesComponent> AttributeComp = Cast<UARLAttributesComponent>(OtherActor->GetComponentByClass(UARLAttributesComponent::StaticClass()));
 		if (IsValid(AttributeComp))
 		{
-			AttributeComp->ApplyHealthChange(-20.f);
+			AttributeComp->ApplyHealthChange(-DamageAmount);
 
 			Destroy();
 		}

@@ -6,6 +6,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AARLProjectile::AARLProjectile()
@@ -25,7 +27,10 @@ AARLProjectile::AARLProjectile()
 	SetRootComponent(SphereComp);	
 
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
-	EffectComp->SetupAttachment(SphereComp);
+	EffectComp->SetupAttachment(GetRootComponent());
+
+	AudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
+	AudioComp->SetupAttachment(GetRootComponent());
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
 	MovementComp->InitialSpeed = 1000.f;
@@ -34,6 +39,9 @@ AARLProjectile::AARLProjectile()
 	MovementComp->ProjectileGravityScale = 0.f;
 
 	bIgnoreInstigatorWhenMoving = true;
+
+	ImpactShakeInnerRadius = 0.0f;
+	ImpactShakeOuterRadius = 1500.0f;
 	
 }
 
@@ -57,9 +65,15 @@ void AARLProjectile::OnSphereCompHit(UPrimitiveComponent* HitComponent, AActor* 
 
 void AARLProjectile::Explode_Implementation()
 {
-	if (ensure(IsValid(this) && IsValid(ImpactVFX)))
+	// Check to make sure we aren't already being 'destroyed'
+	// Adding ensure to see if we encounter this situation at all
+	if (ensure(IsValid(this)))
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
+
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSoundCue, GetActorLocation());
+		
+		UGameplayStatics::PlayWorldCameraShake(this, ImpactCameraShake, GetActorLocation(), ImpactShakeInnerRadius, ImpactShakeOuterRadius);
 
 		Destroy();
 	}
@@ -70,10 +84,12 @@ void AARLProjectile::CleanUpPtr()
 	SphereComp = nullptr;
 	MovementComp = nullptr;
 	EffectComp = nullptr;
+	AudioComp = nullptr;
 }
 
 void AARLProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	Explode();
 	CleanUpPtr();
 	Super::EndPlay(EndPlayReason);
 }
@@ -91,3 +107,5 @@ void AARLProjectile::PostInitializeComponents()
 	
 	SphereComp->OnComponentHit.AddDynamic(this, &AARLProjectile::OnSphereCompHit);
 }
+
+

@@ -26,8 +26,8 @@ public:
 	// Implementation in inherited class ( InheritedClass implements it so: void Interact_Implementation(APawn* InstigatorPawn);
 	// 
 	// Execution: call Execute_Interact(UObject* O, APawn* InstigatorPawn); on this interface by using static funtion or cast owner to interface
-	// Examples:	- Cast<IARLGamePlayInterface>(O)->Execute_InterfaceOptionalFunction(O, Instigator);
-	//				- IARLGamePlayInterface::Execute_InterfaceOptionalFunction(O, Instigator);
+	// Examples:	- Cast<IARLGamePlayInterface>(O)->Execute_InterfaceFunction(O, Instigator);
+	//				- IARLGamePlayInterface::Execute_InterfaceFunction(O, Instigator);
 	// 
 	// Check if Object implemented the Interface: if (Owner->Implements<UARLGamePlayInterface>()){} ATTENTION: Here the UARLGamePlayInterface and not the IARLGamePlayInterface will be used
 	// 

@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ARLInteractionComponent.h"
 #include "ARLAttributesComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AARLExampleChar::AARLExampleChar()
@@ -32,6 +34,15 @@ AARLExampleChar::AARLExampleChar()
 	bUseControllerRotationYaw = false; // false means don't turn the pawn with the controller
 
 	AttackAnimDelay = 0.2f;
+
+	TimeToHitParamName = "TimeToHit";
+	HandSocketName = "Muzzle_01";
+}
+
+void AARLExampleChar::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AttributeComp->OnHealthChanged.AddDynamic(this, &AARLExampleChar::OnHealthChanged);
 }
 
 // Called when the game starts or when spawned
@@ -62,18 +73,6 @@ void AARLExampleChar::DrawDebugDirections()
 
 }
 
-// Called every frame
-void AARLExampleChar::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (DebugActive)
-	{
-		DrawDebugDirections();
-	}
-
-}
-
 // Called to bind functionality to input
 void AARLExampleChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -91,6 +90,18 @@ void AARLExampleChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &AARLExampleChar::SecondaryAttack);
 	PlayerInputComponent->BindAction("Action01", IE_Pressed, this, &AARLExampleChar::Action01);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AARLExampleChar::PrimaryInteract);
+
+}
+
+// Called every frame
+void AARLExampleChar::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (DebugActive)
+	{
+		DrawDebugDirections();
+	}
 
 }
 
@@ -114,6 +125,24 @@ void AARLExampleChar::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
+void AARLExampleChar::OnHealthChanged(AActor* InstigatorActor, UARLAttributesComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (Delta < 0.f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+	}
+
+	if (NewHealth <= 0.f && Delta < 0.f)
+	{
+		TObjectPtr<APlayerController> PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			DisableInput(PC);
+		}
+	}
+}
+
+
 void AARLExampleChar::SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawnClass, bool bIncludePhysicsBodyCheck)
 {
 	if (ensureAlways(IsValid(ProjectileToSpawnClass)))
@@ -123,7 +152,7 @@ void AARLExampleChar::SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSp
 		SpawnParams.Owner = this;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		const FVector FireLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		const FVector FireLocation = GetMesh()->GetSocketLocation(HandSocketName);
 		// const FVector FireLocation = GetActorLocation() + (GetActorForwardVector() * 50.f); // Fire from center of actor (character)
 
 		FHitResult Hit;
@@ -167,10 +196,7 @@ void AARLExampleChar::SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSp
 
 void AARLExampleChar::PrimaryAttack()
 {
-	if (ensure(AttackMontage))
-	{
-		PlayAnimMontage(AttackMontage);
-	}
+	StartAttackEffect();
 
 	// Fire 0.2 seconds later when the hand of the char in the montage reached fire position. Better way would be through AnimNotifier
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AARLExampleChar::PrimaryAttack_TimeElapsed, AttackAnimDelay, false);
@@ -187,10 +213,7 @@ void AARLExampleChar::PrimaryAttack_TimeElapsed() // ############### Video 8.40 
 
 void AARLExampleChar::SecondaryAttack()
 {
-	if (ensure(AttackMontage))
-	{
-		PlayAnimMontage(AttackMontage);
-	}
+	StartAttackEffect();
 
 	// Fire 0.2 seconds later when the hand of the char in the montage reached fire position. Better way would be through AnimNotifier
 	GetWorldTimerManager().SetTimer(TimerHandle_Secondary, this, &AARLExampleChar::SecondaryAttack_TimeElapsed, AttackAnimDelay, false);
@@ -206,10 +229,7 @@ void AARLExampleChar::SecondaryAttack_TimeElapsed()
 
 void AARLExampleChar::Action01()
 {
-	if (ensure(AttackMontage))
-	{
-		PlayAnimMontage(AttackMontage);
-	}
+	StartAttackEffect();
 
 	// Fire 0.2 seconds later when the hand of the char in the montage reached fire position. Better way would be through AnimNotifier
 	GetWorldTimerManager().SetTimer(TimerHandle_Secondary, this, &AARLExampleChar::Action01_TimeElapsed, AttackAnimDelay, false);
@@ -221,6 +241,12 @@ void AARLExampleChar::Action01_TimeElapsed()
 	{
 		SpawnProjectile(DashProjectileClass);
 	}
+}
+
+void AARLExampleChar::StartAttackEffect()
+{
+	PlayAnimMontage(AttackMontage);
+	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 }
 
 void AARLExampleChar::PrimaryInteract()

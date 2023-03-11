@@ -14,6 +14,7 @@ class AARLProjectile;
 class UARLInteractionComponent;
 class UARLAttributesComponent;
 
+
 UCLASS()
 class ARL_TOMLOOMAN_API AARLExampleChar : public ACharacter
 {
@@ -23,12 +24,24 @@ public:
 	// Sets default values for this character's properties
 	AARLExampleChar();
 
-protected:
 
-	UPROPERTY(VisibleAnywhere)
+	virtual void PostInitializeComponents() override;
+
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName HandSocketName;
+
+	/* Particle System played during attack animation */
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TObjectPtr<UParticleSystem> CastingEffect;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComp;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -75,6 +88,8 @@ protected:
 
 	void Action01_TimeElapsed();
 
+	void StartAttackEffect();
+
 	void SpawnProjectile(TSubclassOf<AARLProjectile> ProjectileToSpawn, bool bIncludePhysicsBodyCheck = true);
 
 	void PrimaryInteract();
@@ -84,6 +99,9 @@ protected:
 	void MoveRight(float Value);
 
 	void DrawDebugDirections();
+
+	UFUNCTION()
+	void OnHealthChanged( AActor* InstigatorActor, UARLAttributesComponent* OwningComp, float NewHealth, float Delta);
 
 public:	
 	// Called every frame

@@ -19,11 +19,14 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UARLAttributesComponent> AttributeComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
 
 	UFUNCTION()
 	void OnHealthChanged( AActor* InstigatorActor, UARLAttributesComponent* OwningComp, float NewHealth, float Delta);

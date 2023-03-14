@@ -33,7 +33,7 @@ AARLProjectile::AARLProjectile()
 	AudioComp->SetupAttachment(GetRootComponent());
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
-	MovementComp->InitialSpeed = 1000.f;
+	MovementComp->InitialSpeed = 8000.f;
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->bInitialVelocityInLocalSpace = true;
 	MovementComp->ProjectileGravityScale = 0.f;
